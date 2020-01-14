@@ -24,13 +24,13 @@
 #define DHTPIN   D3
 
 /*timmer*/
-#define COUNTDOWN 120000
-uint16_t g_begin = 0;
-bool g_turnflag = false;
-bool g_pump_on = false;
+#define COUNTDOWN 60000
+volatile unsigned long g_begin = 0;
+volatile bool g_turnflag = false;
+volatile bool g_pump_on = false;
 /************************* WiFi Access Point *********************************/
-#define WLAN_SSID       "Dam Thanh Cong"
-#define WLAN_PASS       "damnghilon"
+#define WLAN_SSID       "Redmi"
+#define WLAN_PASS       "folamfolam"
 
 /************************* Adafruit.io Setup *********************************/
 #define DEBUGGING
@@ -38,8 +38,8 @@ bool g_pump_on = false;
 #define AIO_SERVERPORT 1883 // use 8883 for SSL
 #define AIO_USERNAME "vutienluc1991"
 #define AIO_KEY "aio_WGss68c16p5ate1EhY05eMQBPYsO"
-#define MQTT_SUBSCRIBE "/feeds/onoff" //"control"
-#define MQTT_PUBLISH "/feeds/photocell" //"data"
+#define MQTT_SUBSCRIBE "/feeds/work" //"control"
+#define MQTT_PUBLISH "/feeds/button" //"data"
 /************ Global State (you don't need to change 
 /************ Global State (you don't need to change this!) ******************/
 
@@ -55,10 +55,10 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
+Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/work");
 
 // Setup a feed called 'onoff' for subscribing to changes.
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/onoff");
+Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/button");
 
 /*************************** Sketch Code ************************************/
 
@@ -220,6 +220,7 @@ char* reading_dht()
 void turnon(){
   if(g_turnflag == true && g_pump_on == false){
     g_begin = millis();
+    g_turnflag = false;
     g_pump_on = true;
     digitalWrite(D1, HIGH);
     Serial.println("Turn on Pump");
@@ -230,7 +231,8 @@ void turnon(){
       digitalWrite(D1, LOW);
       g_turnflag = false;
       g_pump_on = false;
-      Serial.write("Turn off Pump");
+      Serial.println("Turn off Pump");
+      Serial.println(millis() - g_begin);
     }
     else if(millis() - g_begin > COUNTDOWN && g_pump_on == false){
       digitalWrite(D1, LOW);
