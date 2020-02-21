@@ -10,16 +10,12 @@ void setup()
   Serial.begin(115200);
   eeprom.ee_init();
 
-  eeprom.ee_write(32, 64, "some thing is going on here");
+  eeprom.ee_write(32, 64, "123456789asdfghjklqwertyuiopozxcvbnm12345678904234345435435435435435345435435435435435435435435435345");
+  Serial.println("done writing!!!");
   delay(3);
-  char buf[64];
+  char buf[66];
   eeprom.ee_read(32, 64, &buf[0]);
   Serial.println("below is out put!!!!!");
-  for(int i = 0; i < 64; i++){
-    Serial.print(int(buf[i]));
-      
-  }
-  Serial.println();
   Serial.println(&buf[0]);
   
   
